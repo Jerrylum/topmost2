@@ -43,8 +43,8 @@
             this.ShortcutDisplay = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.SetShortcutBtn = new System.Windows.Forms.Button();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.ShortcutEnableCB = new System.Windows.Forms.CheckBox();
+            this.AutoStartupCB = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.NotifyIconMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -139,8 +139,8 @@
             this.panel1.Controls.Add(this.ShortcutDisplay);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.SetShortcutBtn);
-            this.panel1.Controls.Add(this.checkBox3);
-            this.panel1.Controls.Add(this.checkBox1);
+            this.panel1.Controls.Add(this.ShortcutEnableCB);
+            this.panel1.Controls.Add(this.AutoStartupCB);
             this.panel1.Location = new System.Drawing.Point(-8, -1);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(300, 130);
@@ -176,29 +176,29 @@
             this.SetShortcutBtn.UseVisualStyleBackColor = true;
             this.SetShortcutBtn.Click += new System.EventHandler(this.SetShortcutBtn_Click);
             // 
-            // checkBox3
+            // ShortcutEnableCB
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.BackColor = System.Drawing.SystemColors.Control;
-            this.checkBox3.Checked = true;
-            this.checkBox3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox3.Location = new System.Drawing.Point(32, 42);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(215, 16);
-            this.checkBox3.TabIndex = 7;
-            this.checkBox3.Text = "Keyboard shortcut for toggling top most ";
-            this.checkBox3.UseVisualStyleBackColor = false;
+            this.ShortcutEnableCB.AutoSize = true;
+            this.ShortcutEnableCB.BackColor = System.Drawing.SystemColors.Control;
+            this.ShortcutEnableCB.Location = new System.Drawing.Point(32, 42);
+            this.ShortcutEnableCB.Name = "ShortcutEnableCB";
+            this.ShortcutEnableCB.Size = new System.Drawing.Size(215, 16);
+            this.ShortcutEnableCB.TabIndex = 7;
+            this.ShortcutEnableCB.Text = "Keyboard shortcut for toggling top most ";
+            this.ShortcutEnableCB.UseVisualStyleBackColor = false;
+            
             // 
-            // checkBox1
+            // AutoStartupCB
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.BackColor = System.Drawing.SystemColors.Control;
-            this.checkBox1.Location = new System.Drawing.Point(32, 20);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(215, 16);
-            this.checkBox1.TabIndex = 6;
-            this.checkBox1.Text = "Automatically start with Windows startup";
-            this.checkBox1.UseVisualStyleBackColor = false;
+            this.AutoStartupCB.AutoSize = true;
+            this.AutoStartupCB.BackColor = System.Drawing.SystemColors.Control;
+            this.AutoStartupCB.Location = new System.Drawing.Point(32, 20);
+            this.AutoStartupCB.Name = "AutoStartupCB";
+            this.AutoStartupCB.Size = new System.Drawing.Size(215, 16);
+            this.AutoStartupCB.TabIndex = 6;
+            this.AutoStartupCB.Text = "Automatically start with Windows startup";
+            this.AutoStartupCB.UseVisualStyleBackColor = false;
+            
             // 
             // panel2
             // 
@@ -248,8 +248,8 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button SetShortcutBtn;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox ShortcutEnableCB;
+        private System.Windows.Forms.CheckBox AutoStartupCB;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label ShortcutDisplay;
     }

@@ -65,7 +65,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="globalKeyboardHook.cs" />
+    <Compile Include="API.cs" />
+    <Compile Include="GlobalKeyboardHook.cs" />
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
