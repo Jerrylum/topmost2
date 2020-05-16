@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections;
+
 using TopMost2;
 
 namespace TopMost
@@ -36,8 +38,9 @@ namespace TopMost
 
 
         public static WinEventDelegate dele = null;
+        public static ArrayList TopmostWindowsLog = new ArrayList();
         public static IntPtr lastHwnd;
-        public static IntPtr cureentHwnd;      
+        public static IntPtr cureentHwnd;
 
         public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
@@ -56,12 +59,33 @@ namespace TopMost
             cureentHwnd = hwnd;
         }
 
-        public static void SetTopMost()
+        public static void RestAllTopMost()
         {
+            foreach (IntPtr hwnd in TopmostWindowsLog)
+                SetTopMost(hwnd, false);
+        }
+
+        public static void ToggleTopMost()
+        {
+            // current Hwnd is the task bar, we dont need that
             bool now_topmost = (GetWindowLong(lastHwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
 
-            Program.SetWindowPos(lastHwnd, now_topmost ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            SetTopMost(lastHwnd, !now_topmost);
         }
+
+        public static void SetTopMost(IntPtr hwnd, bool topmost)
+        {
+            Console.WriteLine(Program.GetWindowTitle(hwnd) + " set to " + topmost);
+            //if (TopmostWindowsLog.IndexOf(hwnd) != -1)
+            if (topmost)
+                if (TopmostWindowsLog.IndexOf(hwnd) == -1) 
+                    TopmostWindowsLog.Add(hwnd);
+            else
+                TopmostWindowsLog.Remove(hwnd);
+            SetWindowPos(hwnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        }
+
+
 
         [STAThread]
         static void Main()

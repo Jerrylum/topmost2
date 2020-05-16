@@ -29,18 +29,20 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OptionsForm));
             this.NotifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.NotifyIconMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ResetAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ResetAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NotifyIconMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // NotifyIcon1
             // 
             this.NotifyIcon1.ContextMenuStrip = this.NotifyIconMenuStrip1;
+            this.NotifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon1.Icon")));
             this.NotifyIcon1.Text = "TopMost2";
             this.NotifyIcon1.Visible = true;
             this.NotifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
@@ -53,7 +55,7 @@
             this.clearAllToolStripMenuItem,
             this.ResetAllStripMenuItem});
             this.NotifyIconMenuStrip1.Name = "NotifyIconMenuStrip1";
-            this.NotifyIconMenuStrip1.Size = new System.Drawing.Size(181, 114);
+            this.NotifyIconMenuStrip1.Size = new System.Drawing.Size(120, 92);
             this.NotifyIconMenuStrip1.TabStop = true;
             this.NotifyIconMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.NotifyIconMenuStrip1_Opening);
             // 
@@ -69,6 +71,14 @@
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
+            this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
+            // 
+            // clearAllToolStripMenuItem
+            // 
+            this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearAllToolStripMenuItem.Text = "Clear All";
+            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
             // 
             // ResetAllStripMenuItem
             // 
@@ -77,20 +87,17 @@
             this.ResetAllStripMenuItem.Text = "Reset All";
             this.ResetAllStripMenuItem.Click += new System.EventHandler(this.ResetAllStripMenuItem_Click);
             // 
-            // clearAllToolStripMenuItem
-            // 
-            this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.clearAllToolStripMenuItem.Text = "Clear All";
-            // 
             // OptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "OptionsForm";
-            this.Text = "OptionsForm";
+            this.Text = "Options";
             this.NotifyIconMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
