@@ -74,7 +74,7 @@ namespace TopMost2
 
                     if (rtn.Count == 0)
                     {
-                        // make default
+                        // default
                         rtn.Add(Keys.LControlKey);
                         rtn.Add(Keys.LMenu);
                         rtn.Add(Keys.Space);
@@ -153,12 +153,11 @@ namespace TopMost2
                 SetTopMost(hwnd, false);
         }
 
-        public static void ToggleTopMost()
+        public static void ToggleTopMost(IntPtr hwnd)
         {
-            // current Hwnd is the task bar, we dont need that
-            bool now_topmost = (GetWindowLong(lastHwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
+            bool now_topmost = (GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
 
-            SetTopMost(lastHwnd, !now_topmost);
+            SetTopMost(hwnd, !now_topmost);
         }
 
         public static void SetTopMost(IntPtr hwnd, bool topmost)

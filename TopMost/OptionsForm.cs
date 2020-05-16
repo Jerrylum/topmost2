@@ -17,9 +17,10 @@ namespace TopMost2
         }
 
         public ListeningStatus ListenStatus = ListeningStatus.RUNNING;
-        public HashSet<Keys> RecordingCombinationAlpha;
-        public HashSet<Keys> RecordingCombinationBeta;
-        public HashSet<Keys> ShortcutCombination;
+        public HashSet<Keys> RecordingCombinationAlpha; // For set config use
+        public HashSet<Keys> RecordingCombinationBeta; // For set config use
+        public HashSet<Keys> ListeningCombination; // For trigger use
+        public HashSet<Keys> TargetCombination;
         public bool IsShortcutEnable;
 
         public OptionsForm()
@@ -29,11 +30,12 @@ namespace TopMost2
             API.gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
             RecordingCombinationAlpha = new HashSet<Keys>();
             RecordingCombinationBeta = new HashSet<Keys>();
-            ShortcutCombination = API.Config.ShortcutCombination;
+            TargetCombination = API.Config.ShortcutCombination;
             AutoStartupCB.Checked = API.Config.IsAutoStart;
             AutoStartupCB.CheckedChanged += new System.EventHandler(AutoStartupCB_CheckedChanged);
             ShortcutEnableCB.Checked = IsShortcutEnable = API.Config.IsShortcutEnable;
             ShortcutEnableCB.CheckedChanged += new System.EventHandler(ShortcutEnableCB_CheckedChanged);
+            ListeningCombination = new HashSet<Keys>();
 
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OptionsForm));
             NotifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -47,7 +49,8 @@ namespace TopMost2
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            API.ToggleTopMost();
+            // current Hwnd is the task bar, we dont need that
+            API.ToggleTopMost(API.lastHwnd);
         }
 
         private void NotifyIconMenuStrip1_Opening(object sender, CancelEventArgs e)
@@ -87,18 +90,18 @@ namespace TopMost2
 
                 if (RecordingCombinationBeta.Count != 0)
                 {
-                    ShortcutCombination.Clear();
+                    TargetCombination.Clear();
                     foreach (Keys k in RecordingCombinationBeta)
-                        ShortcutCombination.Add(k);
+                        TargetCombination.Add(k);
                 }
                 else
                 {
-                    foreach (Keys k in ShortcutCombination)
+                    foreach (Keys k in TargetCombination)
                         RecordingCombinationBeta.Add(k);
                 }
 
-                ShortcutDisplay.Text = API.GetKeyCombinationBreif(ShortcutCombination);
-                API.Config.ShortcutCombination = ShortcutCombination;
+                ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
+                API.Config.ShortcutCombination = TargetCombination;
             }
             else  // start recording
             {
@@ -122,6 +125,7 @@ namespace TopMost2
         {
             API.Config.IsShortcutEnable = ShortcutEnableCB.Checked;
             ShortcutEnableCB.Checked = IsShortcutEnable = API.Config.IsShortcutEnable;
+            ListeningCombination.Clear();
         }
 
         void gkh_KeyUp(object sender, KeyEventArgs e)
@@ -133,10 +137,14 @@ namespace TopMost2
                 RecordingCombinationAlpha.Remove(e.KeyCode);
                 //e.Handled = true;
             }
-            else
-            {
-                if (!IsShortcutEnable) return;
-            }
+
+            if (!IsShortcutEnable) return;
+
+            if (ListeningCombination.SetEquals(TargetCombination))
+                API.ToggleTopMost(API.cureentHwnd);
+
+
+            ListeningCombination.Remove(e.KeyCode);
         }
 
         void gkh_KeyDown(object sender, KeyEventArgs e)
@@ -154,12 +162,9 @@ namespace TopMost2
 
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(RecordingCombinationAlpha);
             }
-            else
-            {
-                if (!IsShortcutEnable) return;
-            }
 
-
+            if (!IsShortcutEnable) return;
+            ListeningCombination.Add(e.KeyCode);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -177,7 +182,7 @@ namespace TopMost2
         {
             if (this.Visible)
             {
-                ShortcutDisplay.Text = API.GetKeyCombinationBreif(ShortcutCombination);
+                ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
 
                 AutoStartupCB.Checked = API.Config.IsAutoStart;
 
