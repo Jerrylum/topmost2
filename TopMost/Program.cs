@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Collections;
 
 using TopMost2;
+using Utilities;
 
 namespace TopMost
 {
@@ -41,6 +42,7 @@ namespace TopMost
         public static ArrayList TopmostWindowsLog = new ArrayList();
         public static IntPtr lastHwnd;
         public static IntPtr cureentHwnd;
+        public static globalKeyboardHook gkh = new globalKeyboardHook();
 
         public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
@@ -104,5 +106,6 @@ namespace TopMost
 
             Application.Run();
         }
+
     }
 }
