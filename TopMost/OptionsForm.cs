@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace TopMost2
@@ -17,11 +18,15 @@ namespace TopMost2
         }
 
         public ListeningStatus ListenStatus = ListeningStatus.RUNNING;
+        public bool RecordingReleasing = false; // For set config use
         public HashSet<Keys> RecordingCombinationAlpha; // For set config use
         public HashSet<Keys> RecordingCombinationBeta; // For set config use
         public HashSet<Keys> ListeningCombination; // For trigger use
         public HashSet<Keys> TargetCombination;
         public bool IsShortcutEnable;
+
+        public Icon RedIcon;
+        public Icon GreenIcon;
 
         public OptionsForm()
         {
@@ -38,7 +43,52 @@ namespace TopMost2
             ListeningCombination = new HashSet<Keys>();
 
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OptionsForm));
-            NotifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            RedIcon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            GreenIcon = Properties.Resources.IconGreen;
+
+            NotifyIcon1.Icon = RedIcon;
+            UpdateNotifyIcon();
+        }
+
+        public void UpdateNotifyIcon()
+        {
+            // Taskbar -> Always RED
+            // Other Program -> Read the value
+            //Icon NewIcon = !API.IsTaskBar(API.cureentHwnd) && API.IsTopMost(API.cureentHwnd) ? GreenIcon : RedIcon;
+            Icon NewIcon = API.IsTopMost(API.cureentHwnd) ? GreenIcon : RedIcon;
+
+            if (NotifyIcon1.Icon != NewIcon)
+                NotifyIcon1.Icon = NewIcon;
+        }
+
+        public void StartRecord()
+        {
+            ShortcutDisplay.Text = "Recording";
+            SetShortcutBtn.Text = "Done";
+            ListenStatus = ListeningStatus.RECORDING;
+            RecordingCombinationAlpha.Clear();
+            RecordingCombinationBeta.Clear();
+        }
+
+        public void StopRecord()
+        {
+            SetShortcutBtn.Text = "Edit";
+            ListenStatus = ListeningStatus.RUNNING;
+
+            if (RecordingCombinationBeta.Count != 0)
+            {
+                TargetCombination.Clear();
+                foreach (Keys k in RecordingCombinationBeta)
+                    TargetCombination.Add(k);
+            }
+            else
+            {
+                foreach (Keys k in TargetCombination)
+                    RecordingCombinationBeta.Add(k);
+            }
+
+            ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
+            Reg.ShortcutCombination = TargetCombination;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -49,12 +99,34 @@ namespace TopMost2
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             // current Hwnd is the task bar, we dont need that
-            API.ToggleTopMost(API.lastHwnd);
+
+            // current Hwnd, TEST
+            API.ToggleTopMost(API.cureentHwnd);
         }
 
         private void NotifyIconMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
             Console.WriteLine("Menu Opening");
+
+            windowListToolStripMenuItem.DropDownItems.Clear();
+
+            Process[] procs = Process.GetProcesses();
+            IntPtr hWnd;
+            foreach (Process proc in procs)
+            {
+                if ((hWnd = proc.MainWindowHandle) != IntPtr.Zero && !API.IsWindowsCore(hWnd))
+                {
+                    //Console.WriteLine(API.GetWindowTitle(hWnd));
+                    var WindowListItem = new ToolStripMenuItem();
+                    WindowListItem.Name = "";
+                    WindowListItem.Checked = API.IsTopMost(hWnd);
+                    WindowListItem.Size = new System.Drawing.Size(180, 22);
+                    WindowListItem.Text = API.GetWindowTitle(hWnd);
+                    WindowListItem.Tag = hWnd;
+                    WindowListItem.Click += new System.EventHandler(this.WindowsListMenuItem_Click);
+                    windowListToolStripMenuItem.DropDownItems.Add(WindowListItem);
+                }
+            }
         }
 
         private void ResetAllStripMenuItem_Click(object sender, EventArgs e)
@@ -70,7 +142,7 @@ namespace TopMost2
             {
                 if ((hWnd = proc.MainWindowHandle) != IntPtr.Zero)
                 {
-                    API.SetTopMost(hWnd, false);
+                    API.SetTopMost(hWnd, false, false);
                 }
             }
         }
@@ -84,31 +156,11 @@ namespace TopMost2
         {
             if (ListenStatus == ListeningStatus.RECORDING) // end recording
             {
-                SetShortcutBtn.Text = "Edit";
-                ListenStatus = ListeningStatus.RUNNING;
-
-                if (RecordingCombinationBeta.Count != 0)
-                {
-                    TargetCombination.Clear();
-                    foreach (Keys k in RecordingCombinationBeta)
-                        TargetCombination.Add(k);
-                }
-                else
-                {
-                    foreach (Keys k in TargetCombination)
-                        RecordingCombinationBeta.Add(k);
-                }
-
-                ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
-                Reg.ShortcutCombination = TargetCombination;
+                StopRecord();
             }
             else  // start recording
             {
-                ShortcutDisplay.Text = "Recording";
-                SetShortcutBtn.Text = "Done";
-                ListenStatus = ListeningStatus.RECORDING;
-                RecordingCombinationAlpha.Clear();
-                RecordingCombinationBeta.Clear();
+                StartRecord();
             }
 
             //SetShortcutBtn
@@ -127,29 +179,50 @@ namespace TopMost2
             ListeningCombination.Clear();
         }
 
-        void gkh_KeyUp(object sender, KeyEventArgs e)
+        private void WindowsListMenuItem_Click(object sender, EventArgs e)
         {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+            IntPtr hWnd = (IntPtr)item.Tag;
+
+            API.SetTopMost(hWnd, !item.Checked);
+        }
+
+        private void gkh_KeyUp(object sender, KeyEventArgs e)
+        {
+
             if (ListenStatus == ListeningStatus.RECORDING)
             {
                 RecordingCombinationAlpha.Remove(e.KeyCode);
+
+                RecordingReleasing = true;
+
                 e.Handled = true;
             }
-
-            if (!IsShortcutEnable) return;
-
-            if (ListeningCombination.SetEquals(TargetCombination))
-                API.ToggleTopMost(API.cureentHwnd);
-
+            else // if recording, should not listening short cut
+            {
+                if (IsShortcutEnable && ListeningCombination.SetEquals(TargetCombination))
+                    if (!API.IsWindowsCore(API.cureentHwnd))
+                        API.ToggleTopMost(API.cureentHwnd);
+            }
 
             ListeningCombination.Remove(e.KeyCode);
+
         }
 
-        void gkh_KeyDown(object sender, KeyEventArgs e)
+        private void gkh_KeyDown(object sender, KeyEventArgs e)
         {
+
             if (ListenStatus == ListeningStatus.RECORDING)
             {
                 if (RecordingCombinationAlpha.Count == 0)
                     RecordingCombinationBeta.Clear();
+
+                if (RecordingReleasing)
+                    RecordingCombinationBeta = new HashSet<Keys>(RecordingCombinationAlpha);
+
+                RecordingReleasing = false;
+
                 RecordingCombinationAlpha.Add(e.KeyCode);
                 RecordingCombinationBeta.Add(e.KeyCode);
                 e.Handled = true;
@@ -157,8 +230,6 @@ namespace TopMost2
 
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(RecordingCombinationAlpha);
             }
-
-            if (!IsShortcutEnable) return;
             ListeningCombination.Add(e.KeyCode);
         }
 
@@ -185,5 +256,22 @@ namespace TopMost2
             }
         }
 
+        private void OptionsForm_Leave(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OptionsForm_Validating(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void OptionsForm_Deactivate(object sender, EventArgs e)
+        {
+            if (ListenStatus == ListeningStatus.RECORDING) // end recording
+            {
+                StopRecord();
+            }
+        }
     }
 }

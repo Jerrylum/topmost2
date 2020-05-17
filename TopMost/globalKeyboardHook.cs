@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Utilities {
 	/// <summary>
@@ -39,6 +40,8 @@ namespace Utilities {
 		/// Handle to the hook, need this to unhook and call the next hook
 		/// </summary>
 		IntPtr hhook = IntPtr.Zero;
+
+		private static keyboardHookProc callbackDelegate;
 		#endregion
 
 		#region Events
@@ -74,15 +77,21 @@ namespace Utilities {
 		/// Installs the global hook
 		/// </summary>
 		public void hook() {
+			if (callbackDelegate != null) throw new InvalidOperationException("Can't hook more than once");
 			IntPtr hInstance = LoadLibrary("User32");
-			hhook = SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, hInstance, 0);
+			callbackDelegate = new keyboardHookProc(hookProc);
+			hhook = SetWindowsHookEx(WH_KEYBOARD_LL, callbackDelegate, hInstance, 0);
+			if (hhook == IntPtr.Zero) throw new Win32Exception();
 		}
 
 		/// <summary>
 		/// Uninstalls the global hook
 		/// </summary>
 		public void unhook() {
-			UnhookWindowsHookEx(hhook);
+			if (callbackDelegate == null) return;
+			bool ok = UnhookWindowsHookEx(hhook);
+			if (!ok) throw new Win32Exception();
+			callbackDelegate = null;
 		}
 
 		/// <summary>

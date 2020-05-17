@@ -3,10 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilities;
 
@@ -17,10 +19,26 @@ namespace TopMost2
 
         public static void Init()
         {
-            dele = new WinEventDelegate(WinEventProc);
-            IntPtr m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
+            cureentHwnd = IntPtr.Zero;
 
-            cureentHwnd = GetForegroundWindow();
+            var task = Task.Run(async () =>
+            {
+                int i = 0;
+                for (; ; )
+                {
+                    await Task.Delay(100);
+                    IntPtr now = GetForegroundWindow();
+                    if (now != cureentHwnd && !IsWindowsCore(now))
+                    {
+                        //lastHwnd = cureentHwnd;
+                        cureentHwnd = now;
+                        //Console.WriteLine(" > " + GetWindowTitle(cureentHwnd));
+
+                        if (Program.OptionsForm != null)
+                            Program.OptionsForm.UpdateNotifyIcon();
+                    }
+                }
+            });
         }
 
         [DllImport("user32.dll")]
@@ -29,10 +47,10 @@ namespace TopMost2
         static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern int GetWindowTextLength(IntPtr hWnd);
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
         [DllImport("user32.dll")]
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-        [DllImport("user32.dll")]
-        static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
         [DllImport("user32.dll")]
         static extern int ToAscii(uint uVirtKey, uint uScanCode,
                                     byte[] lpKeyState,
@@ -54,16 +72,13 @@ namespace TopMost2
         static readonly UInt32 EVENT_SYSTEM_FOREGROUND = 3;
         static readonly byte HighBit = 0x80;
 
-        public static WinEventDelegate dele = null;
         public static ArrayList TopmostWindowsLog = new ArrayList();
-        public static IntPtr lastHwnd;
+        //public static IntPtr lastHwnd;
         public static IntPtr cureentHwnd;
         public static GlobalKeyboardHook gkh = new GlobalKeyboardHook();
 
         private static KeysConverter kc = new KeysConverter();
 
-
-        public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
         public static bool IsAlwaysRunning()
         {
@@ -90,16 +105,24 @@ namespace TopMost2
 
         public static string GetWindowTitle(IntPtr handle)
         {
-            var length = GetWindowTextLength(handle);
+            var length = 256;//GetWindowTextLength(handle) + 1;
             var title = new StringBuilder(length);
             GetWindowText(handle, title, length);
             return title.ToString();
         }
 
-        public static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        public static string GetClassName(IntPtr handle)
         {
-            lastHwnd = cureentHwnd;
-            cureentHwnd = hwnd;
+            var builder = new StringBuilder(1024);
+            GetClassName(handle, builder, builder.Capacity);
+            return builder.ToString();
+        }
+
+        public static bool IsWindowsCore(IntPtr hwnd)
+        {
+            string classname = GetClassName(hwnd);
+            string title = GetWindowTitle(hwnd);
+            return classname == "Shell_TrayWnd" || classname == "Windows.UI.Core.CoreWindow" || title == "";
         }
 
         public static bool IsTopMost(IntPtr hwnd)
@@ -120,9 +143,9 @@ namespace TopMost2
             SetTopMost(hwnd, !now_topmost);
         }
 
-        public static void SetTopMost(IntPtr hwnd, bool topmost)
+        public static void SetTopMost(IntPtr hwnd, bool topmost, bool tryAdmin = true)
         {
-            Console.WriteLine(hwnd.ToString("X") + " set to " + topmost);
+            Console.WriteLine(hwnd.ToString("X") + " set to " + topmost + "; Current = " + GetForegroundWindow().ToString("X"));
 
             //if (TopmostWindowsLog.IndexOf(hwnd) != -1)
 
@@ -140,26 +163,35 @@ namespace TopMost2
             {
                 if (!IsAdministrator())
                 {
-                    Process cureent = Process.GetCurrentProcess();
-                    string exeName = cureent.MainModule.FileName;
-                    ProcessStartInfo startInfo = new ProcessStartInfo(exeName)
+                    if (tryAdmin)
                     {
-                        Verb = "runas",
-                        Arguments = String.Format("--autostart -{0} 0x{1}", (topmost ? "S" : "R"), hwnd.ToString("X"))
-                    };
-                    try
-                    {
-                        Process.Start(startInfo);
-                        Shutdown();
-                    } catch
-                    {
-                        Console.WriteLine("User cancel permission upgrade");
+                        Process cureent = Process.GetCurrentProcess();
+                        string exeName = cureent.MainModule.FileName;
+                        ProcessStartInfo startInfo = new ProcessStartInfo(exeName)
+                        {
+                            Verb = "runas",
+                            Arguments = String.Format("--autostart -{0} 0x{1}", (topmost ? "S" : "R"), hwnd.ToString("X"))
+                        };
+                        try
+                        {
+                            Process.Start(startInfo);
+                            Shutdown();
+                        }
+                        catch
+                        {
+                            Console.WriteLine("User cancel permission upgrade");
+                        }
                     }
-                } else
+
+                }
+                else
                 {
                     SystemSounds.Asterisk.Play(); // Failed to set top most
                 }
             }
+
+            if (Program.OptionsForm != null)
+                Program.OptionsForm.UpdateNotifyIcon();
         }
 
         public static string GetKeyCombinationBreif(HashSet<Keys> keyset)
@@ -300,7 +332,8 @@ namespace TopMost2
 
         public static void Shutdown(int exitcode = 0)
         {
-            Program.OptionsForm.NotifyIcon1.Icon = null; // remove the icon
+            if (Program.OptionsForm != null)
+                Program.OptionsForm.NotifyIcon1.Icon = null; // remove the icon
             Application.Exit();
             //Application.ExitThread();
             Environment.Exit(exitcode);

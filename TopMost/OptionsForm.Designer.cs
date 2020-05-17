@@ -35,7 +35,6 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ResetAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -46,6 +45,7 @@
             this.ShortcutEnableCB = new System.Windows.Forms.CheckBox();
             this.AutoStartupCB = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.windowListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NotifyIconMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -61,42 +61,35 @@
             // NotifyIconMenuStrip1
             // 
             this.NotifyIconMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem,
+            this.windowListToolStripMenuItem,
             this.optionsToolStripMenuItem,
             this.clearAllToolStripMenuItem,
-            this.ResetAllStripMenuItem});
+            this.exitToolStripMenuItem});
             this.NotifyIconMenuStrip1.Name = "NotifyIconMenuStrip1";
-            this.NotifyIconMenuStrip1.Size = new System.Drawing.Size(120, 92);
+            this.NotifyIconMenuStrip1.Size = new System.Drawing.Size(181, 114);
             this.NotifyIconMenuStrip1.TabStop = true;
             this.NotifyIconMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.NotifyIconMenuStrip1_Opening);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
-            // 
-            // ResetAllStripMenuItem
-            // 
-            this.ResetAllStripMenuItem.Name = "ResetAllStripMenuItem";
-            this.ResetAllStripMenuItem.Size = new System.Drawing.Size(119, 22);
-            this.ResetAllStripMenuItem.Text = "Reset All";
-            this.ResetAllStripMenuItem.Click += new System.EventHandler(this.ResetAllStripMenuItem_Click);
             // 
             // label3
             // 
@@ -206,6 +199,12 @@
             this.panel2.Size = new System.Drawing.Size(300, 100);
             this.panel2.TabIndex = 9;
             // 
+            // windowListToolStripMenuItem
+            // 
+            this.windowListToolStripMenuItem.Name = "windowListToolStripMenuItem";
+            this.windowListToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.windowListToolStripMenuItem.Text = "Window List";
+            // 
             // OptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -224,6 +223,7 @@
             this.Padding = new System.Windows.Forms.Padding(8);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TopMost2 - Options";
+            this.Deactivate += new System.EventHandler(this.OptionsForm_Deactivate);
             this.VisibleChanged += new System.EventHandler(this.OptionsForm_VisibleChanged);
             this.NotifyIconMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -239,7 +239,6 @@
         private System.Windows.Forms.ContextMenuStrip NotifyIconMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ResetAllStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
@@ -251,5 +250,6 @@
         private System.Windows.Forms.CheckBox AutoStartupCB;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label ShortcutDisplay;
+        private System.Windows.Forms.ToolStripMenuItem windowListToolStripMenuItem;
     }
 }
