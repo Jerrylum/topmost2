@@ -30,10 +30,10 @@ namespace TopMost2
             API.gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
             RecordingCombinationAlpha = new HashSet<Keys>();
             RecordingCombinationBeta = new HashSet<Keys>();
-            TargetCombination = API.Config.ShortcutCombination;
-            AutoStartupCB.Checked = API.Config.IsAutoStart;
+            TargetCombination = Reg.ShortcutCombination;
+            AutoStartupCB.Checked = Reg.IsAutoStart;
             AutoStartupCB.CheckedChanged += new System.EventHandler(AutoStartupCB_CheckedChanged);
-            ShortcutEnableCB.Checked = IsShortcutEnable = API.Config.IsShortcutEnable;
+            ShortcutEnableCB.Checked = IsShortcutEnable = Reg.IsShortcutEnable;
             ShortcutEnableCB.CheckedChanged += new System.EventHandler(ShortcutEnableCB_CheckedChanged);
             ListeningCombination = new HashSet<Keys>();
 
@@ -43,9 +43,7 @@ namespace TopMost2
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            NotifyIcon1.Icon = null; // remove the icon
-            Application.Exit();
-            Application.ExitThread();
+            API.Shutdown();
         }
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -102,7 +100,7 @@ namespace TopMost2
                 }
 
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
-                API.Config.ShortcutCombination = TargetCombination;
+                Reg.ShortcutCombination = TargetCombination;
             }
             else  // start recording
             {
@@ -118,14 +116,14 @@ namespace TopMost2
 
         private void AutoStartupCB_CheckedChanged(object sender, EventArgs e)
         {
-            API.Config.IsAutoStart = AutoStartupCB.Checked;
-            AutoStartupCB.Checked = API.Config.IsAutoStart;
+            Reg.IsAutoStart = AutoStartupCB.Checked;
+            AutoStartupCB.Checked = Reg.IsAutoStart;
         }
 
         private void ShortcutEnableCB_CheckedChanged(object sender, EventArgs e)
         {
-            API.Config.IsShortcutEnable = ShortcutEnableCB.Checked;
-            ShortcutEnableCB.Checked = IsShortcutEnable = API.Config.IsShortcutEnable;
+            Reg.IsShortcutEnable = ShortcutEnableCB.Checked;
+            ShortcutEnableCB.Checked = IsShortcutEnable = Reg.IsShortcutEnable;
             ListeningCombination.Clear();
         }
 
@@ -134,7 +132,7 @@ namespace TopMost2
             if (ListenStatus == ListeningStatus.RECORDING)
             {
                 RecordingCombinationAlpha.Remove(e.KeyCode);
-                //e.Handled = true;
+                e.Handled = true;
             }
 
             if (!IsShortcutEnable) return;
@@ -154,7 +152,7 @@ namespace TopMost2
                     RecordingCombinationBeta.Clear();
                 RecordingCombinationAlpha.Add(e.KeyCode);
                 RecordingCombinationBeta.Add(e.KeyCode);
-                //e.Handled = true;
+                e.Handled = true;
 
 
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(RecordingCombinationAlpha);
@@ -181,9 +179,9 @@ namespace TopMost2
             {
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(TargetCombination);
 
-                AutoStartupCB.Checked = API.Config.IsAutoStart;
+                AutoStartupCB.Checked = Reg.IsAutoStart;
 
-                ShortcutEnableCB.Checked = IsShortcutEnable = API.Config.IsShortcutEnable;
+                ShortcutEnableCB.Checked = IsShortcutEnable = Reg.IsShortcutEnable;
             }
         }
 

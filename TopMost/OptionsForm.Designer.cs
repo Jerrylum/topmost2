@@ -186,7 +186,6 @@
             this.ShortcutEnableCB.TabIndex = 7;
             this.ShortcutEnableCB.Text = "Keyboard shortcut for toggling top most ";
             this.ShortcutEnableCB.UseVisualStyleBackColor = false;
-            
             // 
             // AutoStartupCB
             // 
@@ -198,7 +197,6 @@
             this.AutoStartupCB.TabIndex = 6;
             this.AutoStartupCB.Text = "Automatically start with Windows startup";
             this.AutoStartupCB.UseVisualStyleBackColor = false;
-            
             // 
             // panel2
             // 
@@ -224,6 +222,7 @@
             this.MinimizeBox = false;
             this.Name = "OptionsForm";
             this.Padding = new System.Windows.Forms.Padding(8);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TopMost2 - Options";
             this.VisibleChanged += new System.EventHandler(this.OptionsForm_VisibleChanged);
             this.NotifyIconMenuStrip1.ResumeLayout(false);
@@ -236,7 +235,7 @@
 
         #endregion
 
-        private System.Windows.Forms.NotifyIcon NotifyIcon1;
+        public System.Windows.Forms.NotifyIcon NotifyIcon1;
         private System.Windows.Forms.ContextMenuStrip NotifyIconMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;

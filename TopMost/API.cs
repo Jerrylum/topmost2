@@ -2,7 +2,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Media;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
 using Utilities;
@@ -18,83 +21,6 @@ namespace TopMost2
             IntPtr m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
 
             cureentHwnd = GetForegroundWindow();
-        }
-
-        public static class Config
-        {
-            const string AUTORUN_SUBKEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-            const string APPCONFIG_SUBKEY = "Software\\TopMost2";
-
-            public static bool IsAutoStart
-            {
-                get
-                {
-                    string expected = '"' + GetExeLocation() + '"';
-
-                    return GetValueFromRegistry(AUTORUN_SUBKEY, "TopMost2") == expected;
-                }
-
-                set
-                {
-                    if (value)
-                        SetValueToRegistry(AUTORUN_SUBKEY, "TopMost2", '"' + GetExeLocation() + '"');
-                    else
-                        DeleteValueFromRegistry(AUTORUN_SUBKEY, "TopMost2");
-                }
-            }
-
-            public static bool IsShortcutEnable
-            {
-                get
-                {
-                    return GetValueFromRegistry(APPCONFIG_SUBKEY, "ShortcutEnable") == "1";
-                }
-                set
-                {
-                    SetValueToRegistry(APPCONFIG_SUBKEY, "ShortcutEnable", value ? "1" : "0");
-                }
-            }
-
-            public static HashSet<Keys> ShortcutCombination
-            {
-                get
-                {
-                    HashSet<Keys> rtn = new HashSet<Keys>();
-
-                    string raw = GetValueFromRegistry(APPCONFIG_SUBKEY, "ShortcutKeys");
-
-                    if (raw != null)
-                    {
-                        string[] splitted = raw.Split(',');
-                        foreach (string token in splitted)
-                        {
-                            rtn.Add((Keys)Convert.ToInt32(token));
-                        }
-                    }
-
-                    if (rtn.Count == 0)
-                    {
-                        // default
-                        rtn.Add(Keys.LControlKey);
-                        rtn.Add(Keys.LMenu);
-                        rtn.Add(Keys.Space);
-                    }
-
-                    return rtn;
-                }
-                set
-                {
-                    string write = "";
-
-                    foreach (Keys k in value)
-                    {
-                        if (write != "") write += ",";
-                        write += (int)k;
-                    }
-
-                    SetValueToRegistry(APPCONFIG_SUBKEY, "ShortcutKeys", write);
-                }
-            }
         }
 
         [DllImport("user32.dll")]
@@ -118,6 +44,7 @@ namespace TopMost2
 
         static readonly IntPtr GWL_EXSTYLE = new IntPtr(-20);
         static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+
         static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
         static readonly UInt32 WS_EX_TOPMOST = 0x0008;
         static readonly UInt32 SWP_NOSIZE = 0x0001;
@@ -138,6 +65,28 @@ namespace TopMost2
 
         public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
+        public static bool IsAlwaysRunning()
+        {
+            Process current = Process.GetCurrentProcess();
+            string currentName = current.ProcessName;
+            int currentId = current.Id;
+            foreach (Process clsProcess in Process.GetProcesses())
+            {
+                if (clsProcess.ProcessName == currentName && clsProcess.Id != currentId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
 
         public static string GetWindowTitle(IntPtr handle)
         {
@@ -153,6 +102,11 @@ namespace TopMost2
             cureentHwnd = hwnd;
         }
 
+        public static bool IsTopMost(IntPtr hwnd)
+        {
+            return (GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
+        }
+
         public static void RestAllTopMost()
         {
             foreach (IntPtr hwnd in TopmostWindowsLog)
@@ -161,21 +115,51 @@ namespace TopMost2
 
         public static void ToggleTopMost(IntPtr hwnd)
         {
-            bool now_topmost = (GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
+            bool now_topmost = IsTopMost(hwnd);
 
             SetTopMost(hwnd, !now_topmost);
         }
 
         public static void SetTopMost(IntPtr hwnd, bool topmost)
         {
-            Console.WriteLine(GetWindowTitle(hwnd) + " set to " + topmost);
+            Console.WriteLine(hwnd.ToString("X") + " set to " + topmost);
+
             //if (TopmostWindowsLog.IndexOf(hwnd) != -1)
+
+
+
             if (topmost)
                 if (TopmostWindowsLog.IndexOf(hwnd) == -1)
                     TopmostWindowsLog.Add(hwnd);
                 else
                     TopmostWindowsLog.Remove(hwnd);
+
             SetWindowPos(hwnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+            if (IsTopMost(hwnd) != topmost)
+            {
+                if (!IsAdministrator())
+                {
+                    Process cureent = Process.GetCurrentProcess();
+                    string exeName = cureent.MainModule.FileName;
+                    ProcessStartInfo startInfo = new ProcessStartInfo(exeName)
+                    {
+                        Verb = "runas",
+                        Arguments = String.Format("--autostart -{0} 0x{1}", (topmost ? "S" : "R"), hwnd.ToString("X"))
+                    };
+                    try
+                    {
+                        Process.Start(startInfo);
+                        Shutdown();
+                    } catch
+                    {
+                        Console.WriteLine("User cancel permission upgrade");
+                    }
+                } else
+                {
+                    SystemSounds.Asterisk.Play(); // Failed to set top most
+                }
+            }
         }
 
         public static string GetKeyCombinationBreif(HashSet<Keys> keyset)
@@ -311,6 +295,15 @@ namespace TopMost2
                 Console.WriteLine("Failed to set registry");
                 return false;
             }
+        }
+
+
+        public static void Shutdown(int exitcode = 0)
+        {
+            Program.OptionsForm.NotifyIcon1.Icon = null; // remove the icon
+            Application.Exit();
+            //Application.ExitThread();
+            Environment.Exit(exitcode);
         }
     }
 }
