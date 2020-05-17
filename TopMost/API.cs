@@ -107,6 +107,12 @@ namespace TopMost2
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         [DllImport("user32.dll")]
         static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+        [DllImport("user32.dll")]
+        static extern int ToAscii(uint uVirtKey, uint uScanCode,
+                                    byte[] lpKeyState,
+                                    [Out] StringBuilder lpChar,
+                                    uint uFlags);
+
         [DllImport("user32.dll", SetLastError = true)]
         static extern UInt32 GetWindowLong(IntPtr hWnd, IntPtr nIndex);
 
@@ -119,7 +125,7 @@ namespace TopMost2
         static readonly UInt32 SWP_SHOWWINDOW = 0x0040;
         static readonly UInt32 WINEVENT_OUTOFCONTEXT = 0;
         static readonly UInt32 EVENT_SYSTEM_FOREGROUND = 3;
-
+        static readonly byte HighBit = 0x80;
 
         public static WinEventDelegate dele = null;
         public static ArrayList TopmostWindowsLog = new ArrayList();
@@ -179,9 +185,60 @@ namespace TopMost2
             {
                 if (msg != "") msg += " + ";
 
-                msg += kc.ConvertToString(k);
+                msg += GetKeyName(k);
             }
             return msg + "\n"; // important
+        }
+
+        public static char ToAscii(Keys key, Keys modifiers)
+        {
+            var outputBuilder = new StringBuilder(2);
+            int result = ToAscii((uint)key, 0, GetKeyState(modifiers),
+                                 outputBuilder, 0);
+            if (result == 1)
+                return outputBuilder[0];
+            else
+                throw new Exception("Invalid key");
+        }
+
+        private static byte[] GetKeyState(Keys modifiers)
+        {
+            var keyState = new byte[256];
+            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            {
+                if ((modifiers & key) == key)
+                {
+                    keyState[(int)key] = HighBit;
+                }
+            }
+            return keyState;
+        }
+
+        public static string GetKeyName(Keys k)
+        {
+            switch (k)
+            {
+                case Keys.LControlKey:
+                    return "Ctrl";
+                case Keys.LShiftKey:
+                    return "Shift";
+                case Keys.LMenu:
+                    return "Alt";
+                case Keys.RControlKey:
+                    return "R Ctrl";
+                case Keys.RShiftKey:
+                    return "R Shift";
+                case Keys.RMenu:
+                    return "R Alt";
+                case Keys.Back:
+                    return "Backspace";
+                default:
+                    string rtn = kc.ConvertToString(k);
+                    if (rtn.StartsWith("Oem"))
+                        rtn = ToAscii(k, 0) + "";
+                    return rtn;
+            }
+
         }
 
         public static string GetExeLocation()

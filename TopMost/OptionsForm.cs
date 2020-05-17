@@ -45,6 +45,7 @@ namespace TopMost2
         {
             NotifyIcon1.Icon = null; // remove the icon
             Application.Exit();
+            Application.ExitThread();
         }
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -130,8 +131,6 @@ namespace TopMost2
 
         void gkh_KeyUp(object sender, KeyEventArgs e)
         {
-            // TODO
-
             if (ListenStatus == ListeningStatus.RECORDING)
             {
                 RecordingCombinationAlpha.Remove(e.KeyCode);
@@ -149,8 +148,6 @@ namespace TopMost2
 
         void gkh_KeyDown(object sender, KeyEventArgs e)
         {
-            // TODO
-
             if (ListenStatus == ListeningStatus.RECORDING)
             {
                 if (RecordingCombinationAlpha.Count == 0)
