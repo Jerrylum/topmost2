@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
-[assembly: AssemblyTitle("TopMost")]
+[assembly: AssemblyTitle("TopMost2")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TopMost")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyProduct("TopMost2")]
+[assembly: AssemblyCopyright("Jerrrylum")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
