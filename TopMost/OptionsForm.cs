@@ -52,9 +52,6 @@ namespace TopMost2
 
         public void UpdateNotifyIcon()
         {
-            // Taskbar -> Always RED
-            // Other Program -> Read the value
-            //Icon NewIcon = !API.IsTaskBar(API.cureentHwnd) && API.IsTopMost(API.cureentHwnd) ? GreenIcon : RedIcon;
             Icon NewIcon = API.IsTopMost(API.cureentHwnd) ? GreenIcon : RedIcon;
 
             if (NotifyIcon1.Icon != NewIcon)
@@ -93,14 +90,12 @@ namespace TopMost2
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            API.ClearAllTopMost();
             API.Shutdown();
         }
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            // current Hwnd is the task bar, we dont need that
-
-            // current Hwnd, TEST
             API.ToggleTopMost(API.cureentHwnd);
         }
 
@@ -129,22 +124,9 @@ namespace TopMost2
             }
         }
 
-        private void ResetAllStripMenuItem_Click(object sender, EventArgs e)
-        {
-            API.RestAllTopMost();
-        }
-
         private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process[] procs = Process.GetProcesses();
-            IntPtr hWnd;
-            foreach (Process proc in procs)
-            {
-                if ((hWnd = proc.MainWindowHandle) != IntPtr.Zero)
-                {
-                    API.SetTopMost(hWnd, false, false);
-                }
-            }
+            API.ClearAllTopMost();
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -203,7 +185,10 @@ namespace TopMost2
             {
                 if (IsShortcutEnable && ListeningCombination.SetEquals(TargetCombination))
                     if (!API.IsWindowsCore(API.cureentHwnd))
+                    {
                         API.ToggleTopMost(API.cureentHwnd);
+                        e.Handled = true;
+                    }
             }
 
             ListeningCombination.Remove(e.KeyCode);
@@ -218,7 +203,8 @@ namespace TopMost2
                 if (RecordingCombinationAlpha.Count == 0)
                     RecordingCombinationBeta.Clear();
 
-                if (RecordingReleasing)
+                if (RecordingReleasing) // if the keys should be releasing but the user press a new key
+                    // change the beta Combination to alpha
                     RecordingCombinationBeta = new HashSet<Keys>(RecordingCombinationAlpha);
 
                 RecordingReleasing = false;
@@ -230,6 +216,7 @@ namespace TopMost2
 
                 ShortcutDisplay.Text = API.GetKeyCombinationBreif(RecordingCombinationAlpha);
             }
+
             ListeningCombination.Add(e.KeyCode);
         }
 
@@ -237,11 +224,12 @@ namespace TopMost2
         {
             base.OnFormClosing(e);
 
-            if (e.CloseReason == CloseReason.WindowsShutDown) return;
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true; // Dont close the form, hide it
 
-            e.Cancel = true; // Dont close the form, hide it
-
-            Hide();
+                Hide();
+            }            
         }
 
         private void OptionsForm_VisibleChanged(object sender, EventArgs e)
@@ -254,16 +242,6 @@ namespace TopMost2
 
                 ShortcutEnableCB.Checked = IsShortcutEnable = Reg.IsShortcutEnable;
             }
-        }
-
-        private void OptionsForm_Leave(object sender, EventArgs e)
-        {
-
-        }
-
-        private void OptionsForm_Validating(object sender, CancelEventArgs e)
-        {
-
         }
 
         private void OptionsForm_Deactivate(object sender, EventArgs e)

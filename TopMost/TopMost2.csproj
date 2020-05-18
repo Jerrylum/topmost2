@@ -130,6 +130,7 @@
   <ItemGroup>
     <Content Include="IconGreen.ico" />
     <Content Include="Icon.ico" />
+    <Content Include="Properties\ProductREADME.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
@@ -145,6 +146,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)README.md" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(ProjectDir)\Properties\ProductREADME.txt" "$(TargetDir)\README.txt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

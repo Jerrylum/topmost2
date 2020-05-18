@@ -23,7 +23,6 @@ namespace TopMost2
 
             var task = Task.Run(async () =>
             {
-                int i = 0;
                 for (; ; )
                 {
                     await Task.Delay(100);
@@ -53,10 +52,9 @@ namespace TopMost2
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         [DllImport("user32.dll")]
         static extern int ToAscii(uint uVirtKey, uint uScanCode,
-                                    byte[] lpKeyState,
-                                    [Out] StringBuilder lpChar,
-                                    uint uFlags);
-
+                                  byte[] lpKeyState,
+                                  [Out] StringBuilder lpChar,
+                                  uint uFlags);
         [DllImport("user32.dll", SetLastError = true)]
         static extern UInt32 GetWindowLong(IntPtr hWnd, IntPtr nIndex);
 
@@ -68,11 +66,9 @@ namespace TopMost2
         static readonly UInt32 SWP_NOSIZE = 0x0001;
         static readonly UInt32 SWP_NOMOVE = 0x0002;
         static readonly UInt32 SWP_SHOWWINDOW = 0x0040;
-        static readonly UInt32 WINEVENT_OUTOFCONTEXT = 0;
-        static readonly UInt32 EVENT_SYSTEM_FOREGROUND = 3;
         static readonly byte HighBit = 0x80;
 
-        public static ArrayList TopmostWindowsLog = new ArrayList();
+        //public static ArrayList TopmostWindowsLog = new ArrayList();
         //public static IntPtr lastHwnd;
         public static IntPtr cureentHwnd;
         public static GlobalKeyboardHook gkh = new GlobalKeyboardHook();
@@ -98,9 +94,11 @@ namespace TopMost2
 
         public static bool IsAdministrator()
         {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            //WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            //WindowsPrincipal principal = new WindowsPrincipal(identity);
+            //return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            var id = WindowsIdentity.GetCurrent();
+            return id.Owner != id.User;
         }
 
         public static string GetWindowTitle(IntPtr handle)
@@ -130,10 +128,24 @@ namespace TopMost2
             return (GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
         }
 
+        internal static void ClearAllTopMost()
+        {
+            Process[] procs = Process.GetProcesses();
+            IntPtr hWnd;
+            foreach (Process proc in procs)
+            {
+                if ((hWnd = proc.MainWindowHandle) != IntPtr.Zero)
+                {
+                    API.SetTopMost(hWnd, false, false);
+                }
+            }
+        }
+
         public static void RestAllTopMost()
         {
-            foreach (IntPtr hwnd in TopmostWindowsLog)
-                SetTopMost(hwnd, false);
+            //foreach (IntPtr hwnd in TopmostWindowsLog)
+            //    SetTopMost(hwnd, false);
+            ClearAllTopMost();
         }
 
         public static void ToggleTopMost(IntPtr hwnd)
@@ -147,15 +159,11 @@ namespace TopMost2
         {
             Console.WriteLine(hwnd.ToString("X") + " set to " + topmost + "; Current = " + GetForegroundWindow().ToString("X"));
 
-            //if (TopmostWindowsLog.IndexOf(hwnd) != -1)
-
-
-
-            if (topmost)
-                if (TopmostWindowsLog.IndexOf(hwnd) == -1)
-                    TopmostWindowsLog.Add(hwnd);
-                else
-                    TopmostWindowsLog.Remove(hwnd);
+            //if (topmost)
+            //    if (TopmostWindowsLog.IndexOf(hwnd) == -1)
+            //        TopmostWindowsLog.Add(hwnd);
+            //    else
+            //        TopmostWindowsLog.Remove(hwnd);
 
             SetWindowPos(hwnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 
@@ -241,13 +249,15 @@ namespace TopMost2
                 case Keys.LMenu:
                     return "Alt";
                 case Keys.RControlKey:
-                    return "R Ctrl";
+                    return "RCtrl";
                 case Keys.RShiftKey:
-                    return "R Shift";
+                    return "RShift";
                 case Keys.RMenu:
-                    return "R Alt";
+                    return "RAlt";
                 case Keys.Back:
                     return "Backspace";
+                case Keys.Escape:
+                    return "Esc";
                 default:
                     string rtn = kc.ConvertToString(k);
                     if (rtn.StartsWith("Oem"))

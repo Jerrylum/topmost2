@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TopMost2
 {
@@ -73,7 +68,7 @@ namespace TopMost2
                 API.Shutdown(1);
 
             if (!keepRunningFlag && commandModeFlag)
-                API.Shutdown(1);
+                API.Shutdown(0);
         }
     }
 }
