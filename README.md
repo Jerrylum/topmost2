@@ -140,7 +140,7 @@ There is some software on the Internet are doing the same thing too. Like [DeskP
 | CPU Usage                                       | 🟢Least            | 🟠Highest                 | 🟡Medium                |
 | Customize                                       | 🟡Good             | 🟢Excellent               | 🟡Good                  |
 | Compatibility With Programs                     | 🟢Excellent        | 🟡Good <sup>#4</sup>      | 🟢Excellent             |
-| Hotkey <sup>#5</sup>                            | More Combinations | More shortcuts           | Limited                |
+| Hotkey                                          | More Combinations | More shortcuts           | Limited                |
 | Size                                            | 47KB              | 103KB                    | 680KB                  |
 
 #0 Able to change a window that belongs to a process with elevated privileges (run as the administrator).  
