@@ -35,11 +35,11 @@ namespace TopMost2
 
                 if (mode == "/S" || mode == "-S" || mode == "--set")
                 {
-                    API.SetTopMost(hwnd, true);
+                    API.SetTopMost(hwnd, true, false); // dont try admin
                 }
                 else if (mode == "/R" || mode == "-R" || mode == "--remove")
                 {
-                    API.SetTopMost(hwnd, false);
+                    API.SetTopMost(hwnd, false, false); // dont try admin
                 }
 
                 commandModeFlag = true;
