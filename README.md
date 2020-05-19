@@ -84,9 +84,9 @@ Many windows applications don’t offer an option to make itself topmost. When y
   If you are trying to set an elevated window, TopMost2 will ask you to elevate the privileges in order to have higher permission to finish the action. Obviously, the reason is that they are protected by the operating system. You can also start TopMost2 as administrator to avoid the above problem.
   
 - **Hotkey**  
-  You can freely set any hotkey combination. By clicking the `Edit` button, you can then press a new combination. After that, click `Done` to finish. If you leave or close the option form. The hotkey setting will be auto-saved by the system.  
+  You can freely set any hotkey combinations. By clicking the `Edit` button, you can then press a new combination. After that, click `Done` to finish. If you leave or close the option form. The hotkey setting will be auto-saved by the system.  
   ![Hot Key Demo](https://i.imgur.com/jGFi1tC.gif)  
-  If TopMost2 starts with normal permission, it may not be able to listen to the keyboard in the elevated window.
+  If TopMost2 starts with normal permission, it may not be able to read the input of the keyboard in the elevated window.
 
 - **Exit**  
   This function will set all windows to normal state and shut down the program.
@@ -124,7 +124,7 @@ For example:
 
 ### Other Software
 
-There is some software on the Internet are doing the same thing too. Like [DeskPins](https://efotinis.neocities.org/deskpins/) and [Window TopMost Control](https://www.sordum.org/9182/window-topmost-control-v1-2/). I am trying to compare with them in several ways. Keep in mind, this is not a strict comparison and you might have your own answer base on your daily need and style.
+There are some software on the Internet are doing the same thing too. Like [DeskPins](https://efotinis.neocities.org/deskpins/) and [Window TopMost Control](https://www.sordum.org/9182/window-topmost-control-v1-2/). I am trying to compare them in several ways. Keep in mind, everyone has different opinion so this comparison is for reference only.
 
 
 
@@ -162,4 +162,4 @@ This tool requires .Net Framework 4.7.2 (or above). Support Windows 7 SP1 or lat
 
 ### Special Thanks
 
-Thank you SamNg and Theo for their suggestion and testing the software.
+Thank you [SamNg](https://github.com/ngkachunhlp) and [COMMANDER.WONG](https://github.com/COMMANDERWONG) for their suggestion and testing the software.
