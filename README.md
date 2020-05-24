@@ -63,7 +63,7 @@ Click on a menu item from the `Window List` to pin or unpin any windows.
 
 ---
 
-### Why I need this?
+### Why do I need this?
 
 `Topmost` or `Always On Top` is a property of every window you see on your computer. A window whose Topmost property is set to `true` appears above all windows whose Topmost properties are set to `false`.  <br>
 
@@ -124,7 +124,7 @@ For example:
 
 ### Other Software
 
-There are some software on the Internet are doing the same thing too. Like [DeskPins](https://efotinis.neocities.org/deskpins/) and [Window TopMost Control](https://www.sordum.org/9182/window-topmost-control-v1-2/). I am trying to compare them in several ways. Keep in mind, everyone has different opinion so this comparison is for reference only.
+There are similar software like [DeskPins](https://efotinis.neocities.org/deskpins/) and [Window TopMost Control](https://www.sordum.org/9182/window-topmost-control-v1-2/). I am trying to compare them in several ways. Keep in mind, everyone has different opinion so this comparison is for reference only.
 
 
 
@@ -162,4 +162,4 @@ This tool requires .Net Framework 4.7.2 (or above). Support Windows 7 SP1 or lat
 
 ### Special Thanks
 
-Thank you [SamNg](https://github.com/ngkachunhlp) and [COMMANDER.WONG](https://github.com/COMMANDERWONG) for their suggestion and testing the software.
+Thanks you [SamNg](https://github.com/ngkachunhlp) and [COMMANDER.WONG](https://github.com/COMMANDERWONG) for their suggestions and  software testing.
